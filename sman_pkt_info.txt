@@ -1,0 +1,93 @@
+
+Known things
+
+	Item		Decimal		Hex						String
+	Module vers			4d 57 5f 30 38 5f 32 37 30 31 5f 31 2e 32 34	MW_08_2701_1.24
+	Sensor type	1?		31 or 01					1
+	Sensor list	2701?		a8d						2701
+
+Believed understood
+	Logger ID	555555555	0x1ee16232	Represented as hex L3L2L1L0, positions 7 (LSB) to A (MSB) = 32 62 e1 1e
+	Inverter ID	SM1ES050AA1234			Represented as ascii, positions 32 to 47, space padded
+
+
+Unknown things
+					Min	MinHex	Max	MaxHex		Typ	TypHex
+	PV1 voltage			1.1V	0x01.1	300	0x12c
+	PV1 current			0A	0x00
+	PV2 voltage			1.1V	0x01.1	300	0x12c
+	PV2 current			0A	0x00
+	Battery capacity percent	19	0x13	100	0x64
+	Battery charge/discharge	-4000		4000
+	Battery health percent		100	0x64	100	0x64		100	0x64
+	Battery temperature		0	0x0	32	0x20
+	Inverter power			0		5000
+	Inverter temp								35C
+	Grid Voltage			238	0xee	251	0xfb
+	Grid power			0		7000
+	Grid freq			49.x	0x31.x	50.x	0x32.x		50	0x32
+
+	IP Address
+
+Guesses
+	batt charge	uchar		offset 0x48
+	batt temp	uchar		offset 0x50
+
+IP Address
+	If (packet payload) 0x72,0x73 contain 16f0, then 0x74 to 0x83 contain the Ipv4 address as an ascii string
+
+        0x0070:  632d 16f0 3139 322e 3136 382e 3331 2e37  c-..192.168.31.7
+        0x0080:  3800 0000 0200 0101 274a 15              8.......'J.
+
+	so tcp payload offsets are 4a,4b for the 16f0, then 4c to 5b for the ascii string
+
+
+All packets to SMan begin a5
+
+
+len	dir	1st	2nd	3rd	function?
+0	in				keepalive ack?
+2	out	00	00		keepalive check?
+
+14	out	a5	01	00	
+23	in	a5	0a	00	
+
+202	out	a5	bd	00	complete message
+
+
+
+payload length 202, begins at offet 0x28 in an ethernet packet
+
+	0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+
+0	a5  bd	00	            L0  L1  L2  L3    				L3..L0 logger ID
+
+1    
+
+2	S   M   1   E   S   0   5   0   J   C   3   1   1   4  ' ' ' '		Inverter ID
+
+3	
+
+4                                       BC  00  BT  00               		Batt Charge Batt Temp
+
+5
+
+6
+
+7
+
+8
+
+9
+
+A
+	
+B
+
+C
+
+E	                V   1   6   1   V   1   6   1   V   1   6   1
+
+F	xx  15									checksum? crc?
+
+
